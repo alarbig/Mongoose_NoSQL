@@ -1,12 +1,16 @@
-const User = require('../models/user');
+const {Thoughts, User} = require('../models');
 
-module.exports = {
-  getUsers(req, res) {
-    User.find()
+const userController = {
+  getAllUsers(req, res) {
+    User.find({})
+      .populate ({
+        path: "friends",
+        select: "-__v"
+      })
       .then((users) => res.json(users))
       .catch((err) => res.status(500).json(err));
   },
-  getSingleUser(req, res) {
+  getUserById(req, res) {
     User.findOne({ _id: req.params.userId })
       .select('-__v')
       .then((user) =>
@@ -17,9 +21,71 @@ module.exports = {
       .catch((err) => res.status(500).json(err));
   },
   // create a new user
-  createUser(req, res) {
+  postUser(req, res) {
     User.create(req.body)
-      .then((dbUserData) => res.json(dbUserData))
+      .then((dbUser) => res.json(dbUser))
       .catch((err) => res.status(500).json(err));
   },
-};
+
+  putUser({ params, body }, res) {
+    User.fineOneAndUpdate({ _id: params.userId}, body, {
+        new: true, 
+        runValidators: true
+    })
+    .then((dbUser) => {
+        if (!dbUser) {
+            res.status(404).json({ message: "No user with that ID."})
+            return
+        }
+        res.json(dbUser)
+    })
+    .catch((err) => res.status(500).json(err))
+  },
+
+  deleteUser({ params, body}, res) {
+    User.findOneAndDelete({ _id: params.userId })
+    .then((dbUser) => {
+        if (!dbUser) {
+            res.status(404).json({ message: "No user with that ID."})
+            return
+        }
+        res.json({ message: "User was deleted. What is done, cannot be undone."})
+    })
+    .catch((err) => res.status(500).json(err))
+  }, 
+
+  userAddFriend ({ params, body}, res){
+    User.findOneAndUpdate (
+        { _id: params.userId },
+        { $addToSet: {friends: params.friendId }},
+        { new: true, runValidators: true } 
+    )
+    .then((dbUser) => {
+        if (!dbUser) {
+            res.status(404).json({ message: "No user with that ID."})
+            return
+        }
+        res.json({ message: "Friend Added!"})
+    })
+    .catch((err) => res.status(500).json(err))
+  },
+
+  deleteFriend ({ params, body}, res) {
+    User.findOneAndUpdate (
+        { _id: params.userId }, 
+        { $pull: { friends: params.friendId }}, 
+        { new: true }
+    )
+    .then((dbUser) => {
+        if (!dbUser) {
+            res.status(404).json({ message: "No user with that ID."})
+            return
+        }
+        res.json({ message: "Friend removed. Good riddance."})
+    })
+    .catch((err) => res.status(500).json(err))
+  }
+
+}
+
+module.exports = userController;
