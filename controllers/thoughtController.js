@@ -27,3 +27,5 @@ const thoughtcontroller = {
 
 
 }
+
+module.exports = thoughtcontroller;
