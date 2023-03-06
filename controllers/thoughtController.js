@@ -1,4 +1,4 @@
-const { Thoughts, User } = require ('../models')
+const { Thoughts, User } = require ('../models/thoughts')
 
 const thoughtController = {
     getThoughts(req, res) {
@@ -27,7 +27,7 @@ const thoughtController = {
         Thoughts.create(body)
         .then(({ _id }) =>{
             return User.findOneAndUpdate(
-                { _id: body.userId }, 
+                { username: body.username }, 
                 { $push: { thoughts: _id }}, 
                 { new: true }
             )
@@ -38,12 +38,12 @@ const thoughtController = {
             }
             res.json({ message: "Thought created!" })
         })
-        .catch((err) => res.json(err))
-        )
+        
+        ) .catch((err) => res.json(err))
     }, 
 
     putThought({ params, body}, res) {
-        thought.findOneAndUpdate({ _id: params.id }, body, {
+        Thoughts.findOneAndUpdate({ _id: params.id }, body, {
             new:true, 
             runValidators: true,
         } )
@@ -53,8 +53,8 @@ const thoughtController = {
             }
             res.json({ message: "Thought updated!" })
         })
-        .catch((err) => res.json(err))
-        )
+        
+        ) .catch((err) => res.json(err))
     }, 
 
     deleteThought({ params }, res) {

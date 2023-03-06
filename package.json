@@ -1,12 +1,12 @@
 {
 "name": "NoSQL",
 "version": "1.0.1",
-"description": "Challenge 18",
-"main": "index.js",
+"description": "NoSQL",
+"main": "server.js",
 "license": "MIT",
 "scripts": {
-  "start": "node index",
-  "dev": "nodemon index",
+  "start": "node server.js",
+  "dev": "nodemon server.js",
   "seed": "node utils/seed"
 },
 "dependencies": {

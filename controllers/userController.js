@@ -1,15 +1,22 @@
-const {Thoughts, User} = require('../models');
+const {Thoughts, User} = require('../models/user');
+
 
 const userController = {
-  getAllUsers(req, res) {
-    User.find({})
-      .populate ({
-        path: "friends",
-        select: "-__v"
-      })
-      .then((users) => res.json(users))
-      .catch((err) => res.status(500).json(err));
-  },
+    // get all users
+    getAllUsers(req, res) {
+      User.find()
+        .populate({
+          path: "friends",
+          select: "-__v",
+        })
+        .select("-__v")
+        .sort({ _id: -1 })
+        .then((dbUser) => res.json(dbUser))
+        .catch((err) => {
+          console.log(err);
+          res.sendStatus(400);
+        });
+    },
   getUserById(req, res) {
     User.findOne({ _id: req.params.userId })
       .select('-__v')
