@@ -7,7 +7,7 @@ const thoughtController = {
             select:'-__v'
         })
         .select('-__v')
-        .sort({ _id: -1 })
+        .sort({ _id: 1 })
         .then((dbThoughts) => res.json(dbThoughts))
         .catch((err) => {
             console.log(err)
@@ -21,13 +21,24 @@ const thoughtController = {
             path: 'reactions',
             select:'-__v'
         })
+        .select('-__v')
+        .then ((dbThoughts) => {
+            if (!dbThoughts) {
+                return res.status(404).json({message: 'No thought with that id!'})
+            }
+            res.json(dbThoughts);
+        })
+        .catch((err) => {
+            console.log(err)
+            res.sendStatus(400)
+        });
     },
 
     postThought({ params, body}, res ){
         Thoughts.create(body)
         .then(({ _id }) =>{
             return User.findOneAndUpdate(
-                { username: body.username }, 
+                { _id: body.userId }, 
                 { $push: { thoughts: _id }}, 
                 { new: true }
             )
@@ -69,15 +80,13 @@ const thoughtController = {
                  {new: true}
             );
             })
-            .then((dbThoughts) => {
-                if (!dbThoughts) {
+            .then((dbUser) => {
+                if (!dbUser) {
                     return res.status(404).json({ message: 'Error something went wrong'})
                 }
                 res.json({ message: "Thought was deleted!"})
             })
-            .catch ((err) => {
-                res.json(err)
-            })
+            .catch((err) => res.json(err));
     },
 
     postReaction ({ params }, res ){
@@ -90,6 +99,7 @@ const thoughtController = {
             if (!dbThoughts) {
                 return res.status(404).json({ message: 'Error something went wrong'})
             }
+            res.json(dbThoughts)
             res.json({ message: "Reaction added!"})
         })
         .catch ((err) => {

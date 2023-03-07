@@ -10,20 +10,29 @@ const userController = {
           select: "-__v",
         })
         .select("-__v")
-        .sort({ _id: -1 })
+        .sort({ _id: 1 })
         .then((dbUser) => res.json(dbUser))
         .catch((err) => {
           console.log(err);
           res.sendStatus(400);
         });
     },
-  getUserById(req, res) {
-    User.findOne({ _id: req.params.userId })
-      .select('-__v')
-      .then((user) =>
-        !user
+    // get a single user by their ID. api/users/:id
+  getUserById({params}, res) {
+    User.findOne({ _id: params.id })
+    .populate({
+      select:"'-__v'",
+      path: 'thoughts'
+    })
+      .populate({
+          select:"'-__v'",
+          path: 'friends'
+      })
+      .select("-__v")
+      .then((dbUser) =>
+        !dbUser
           ? res.status(404).json({ message: 'No user with that ID' })
-          : res.json(user)
+          : res.json(dbUser)
       )
       .catch((err) => res.status(500).json(err));
   },
@@ -33,9 +42,9 @@ const userController = {
       .then((dbUser) => res.json(dbUser))
       .catch((err) => res.status(500).json(err));
   },
-
-  putUser({ params, body }, res) {
-    User.fineOneAndUpdate({ _id: params.userId}, body, {
+  //updates a user
+  putUser({ req, body }, res) {
+    User.fineOneAndUpdate({ _id: req._id}, body, {
         new: true, 
         runValidators: true
     })
@@ -48,14 +57,15 @@ const userController = {
     })
     .catch((err) => res.status(500).json(err))
   },
-
-  deleteUser({ params, body}, res) {
-    User.findOneAndDelete({ _id: params.userId })
+  //this will delete a user based on their id. 
+  deleteUser({ params }, res) {
+    User.findOneAndDelete({ _id: params.id })
     .then((dbUser) => {
         if (!dbUser) {
             res.status(404).json({ message: "No user with that ID."})
             return
         }
+        res.json(dbUser)
         res.json({ message: "User was deleted. What is done, cannot be undone."})
     })
     .catch((err) => res.status(500).json(err))
@@ -72,7 +82,7 @@ const userController = {
             res.status(404).json({ message: "No user with that ID."})
             return
         }
-        res.json({ message: "Friend Added!"})
+        res.json(dbUser)
     })
     .catch((err) => res.status(500).json(err))
   },
@@ -88,6 +98,7 @@ const userController = {
             res.status(404).json({ message: "No user with that ID."})
             return
         }
+        res.json(dbUser)
         res.json({ message: "Friend removed. Good riddance."})
     })
     .catch((err) => res.status(500).json(err))

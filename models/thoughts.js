@@ -53,7 +53,7 @@ const thoughtsSchema = new Schema({
         toJSON: {
           getters: true,
         },
-        id: false,
+        id: true,
       },
     
 )
@@ -64,4 +64,4 @@ thoughtsSchema.virtual("reactionCount").get(function (){
 
 
 const Thoughts = model("Thoughts", thoughtsSchema)
-module.exports = {Thoughts};
+module.exports = {Thoughts}
