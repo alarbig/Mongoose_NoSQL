@@ -1,5 +1,5 @@
 const { Thoughts, User } = require ('../models/thoughts')
-
+// the first function is the get all thoughts function. It selects all thoughts. 
 const thoughtController = {
     getThoughts(req, res) {
         Thoughts.find({}).populate({
@@ -14,7 +14,7 @@ const thoughtController = {
             res.sendStatus(400)
         });
     }, 
-
+// This will select a single thought based on the ID of the thought itself. It search's for all thoughts and then find the single one with a matching ID.
     getThoughtByID ({ params }, res) {
         Thoughts.findOne({ _id: params.id })
         .populate ({
@@ -33,7 +33,7 @@ const thoughtController = {
             res.sendStatus(400)
         });
     },
-
+// with this you can post a thought and it will append the thought ID to the posted thought via the $push command. 
     postThought({ params, body}, res ){
         Thoughts.create(body)
         .then(({ _id }) =>{
@@ -52,7 +52,7 @@ const thoughtController = {
         
         ) .catch((err) => res.json(err))
     }, 
-
+//updates a thought based on the id value. 
     putThought({ params, body}, res) {
         Thoughts.findOneAndUpdate({ _id: params.id }, body, {
             new:true, 
@@ -67,7 +67,7 @@ const thoughtController = {
         
         ) .catch((err) => res.json(err))
     }, 
-
+// deletes a thought based on the thought ID. 
     deleteThought({ params }, res) {
         Thoughts.findOneAndDelete({ _id: params.id })
         .then((dbThoughts) => {
@@ -88,7 +88,7 @@ const thoughtController = {
             })
             .catch((err) => res.json(err));
     },
-
+// with the $addtoSet command, you can post a reaction based on the thoughts ID. 
     postReaction ({ params }, res ){
         Thoughts.findOneAndUpdate(
             { _id: params.thoughtId }, 
@@ -106,7 +106,7 @@ const thoughtController = {
             res.json(err)
         })
     }, 
-
+// $pull will remove a specific value, in this case based on the thought ID. 
     deleteReaction({ params}, res ){
         Thoughts.findOneAndUpdate (
             { _id: params.thoughtId }, 

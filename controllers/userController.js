@@ -17,7 +17,7 @@ const userController = {
           res.sendStatus(400);
         });
     },
-    // get a single user by their ID. api/users/:id
+    // get a single user by their ID and also find and add all their friends. 
   getUserById({params}, res) {
     User.findOne({ _id: params.id })
     .populate({
@@ -36,13 +36,13 @@ const userController = {
       )
       .catch((err) => res.status(500).json(err));
   },
-  // create a new user
+//creates a new user and adds it to the DB
   postUser(req, res) {
     User.create(req.body)
       .then((dbUser) => res.json(dbUser))
       .catch((err) => res.status(500).json(err));
   },
-  //updates a user
+//updates a user based on their ID. 
   putUser({ req, body }, res) {
     User.fineOneAndUpdate({ _id: req._id}, body, {
         new: true, 
@@ -57,7 +57,7 @@ const userController = {
     })
     .catch((err) => res.status(500).json(err))
   },
-  //this will delete a user based on their id. 
+//this will delete a user based on their id. 
   deleteUser({ params }, res) {
     User.findOneAndDelete({ _id: params.id })
     .then((dbUser) => {
@@ -70,7 +70,7 @@ const userController = {
     })
     .catch((err) => res.status(500).json(err))
   }, 
-
+// finds a user based on their ID, and then adds a friend with the $addToSet command. 
   userAddFriend ({ params, body}, res){
     User.findOneAndUpdate (
         { _id: params.userId },
@@ -86,7 +86,7 @@ const userController = {
     })
     .catch((err) => res.status(500).json(err))
   },
-
+// deletes a friend with the $pull command. 
   deleteFriend ({ params, body}, res) {
     User.findOneAndUpdate (
         { _id: params.userId }, 
